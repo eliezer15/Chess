@@ -1,12 +1,15 @@
 #ifndef PIECE_H_
 #define PIECE_H_
 #include <stdbool.h>
+
 #include "space.h"
+
+bool move(struct Space *from, struct Space *to);
 
 enum pieceType {pawn,rook,knight,bishop,queen,king};
 
 struct Piece {
-    bool isWhite; //this is really a bool
+    bool isWhite; 
     enum pieceType piece_type;
 };
 
@@ -14,6 +17,6 @@ struct Piece {
 //generic move that changes depending on the caller.
 //This is polymorphism
 
-bool move(struct Piece *piece, struct Space *from, struct Space *to);
-struct Piece promote(struct Piece *pawn, enum pieceType newPiece); 
+
+//struct Piece promote(struct Piece *pawn, enum pieceType newPiece); 
 #endif
