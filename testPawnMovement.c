@@ -13,7 +13,7 @@ int main() {
     
     for (k = 0; k < 3; k++) {
         pawns[k] = malloc(sizeof(struct Piece));
-        pawns[k]->isWhite = k; //one will be False
+        pawns[k]->isWhite = k; //pawn[0] will be black
         pawns[k]->piece_type = pawn;
      }
      
@@ -25,9 +25,9 @@ int main() {
          }
     }
 
-    board[1][2]->piece = pawns[1]; //black pawn to space c2
-    board[2][1]->piece = pawns[2]; //black pawn to space b3
-    board[2][3]->piece = pawns[0]; //white pawn to space d3
+    board[1][2]->piece = pawns[1]; //white pawn to space c2
+    board[2][1]->piece = pawns[2]; //white pawn to space b3
+    board[2][3]->piece = pawns[0]; //black pawn to space d3
 
     //Tests
     bool test[11];
@@ -38,10 +38,10 @@ int main() {
     test[2] = !(move(board[1][2], board[0][1])); //Move c2 to a3: 
     test[3] = !(move(board[1][2], board[0][2])); //Move c2 to c1: 
     test[4] = !(move(board[1][2], board[3][2])); //Move c2 to c4: THIS ONE SHOULD BE PERMITTED LATER ON
-    test[5] = !(move(board[1][2], board[2][1])); //Move c2 to b3 and eat another black piece: 
+    test[5] = !(move(board[1][2], board[2][1])); //Move c2 to b3 and eat another white piece: 
     test[6] = !(move(board[1][2], board[1][3])); //Move c2 to d2: 
-    test[7] = move(board[1][2], board[2][3]); //Move c2 to d3 and eat white piece:
-    test[8] = !((board[2][3]->piece->isWhite)); //A black piece is now in d3: 
+    test[7] = move(board[1][2], board[2][3]); //Move c2 to d3 and eat black piece:
+    test[8] = ((board[2][3]->piece->isWhite)); //A white piece is now in d3: 
     test[9] = (board[1][2]->piece == NULL); //There is no piece in c2: 
     test[10] = move(board[2][3],board[3][3]); //Move d3 to d4: 
 
