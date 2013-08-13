@@ -4,7 +4,7 @@
 
 #include "space.h"
 
-bool move(struct Space *from, struct Space *to);
+bool move(struct Space *from, struct Space *to, struct Space *board[][8]);
 
 enum pieceType {pawn,rook,knight,bishop,queen,king};
 
