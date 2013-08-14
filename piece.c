@@ -18,6 +18,8 @@ bool move(struct Space *from, struct Space *to, struct Space *board[][8]) {
     //Check there is not a same colored piece on the spot
     if (to->piece != NULL && from->piece->isWhite == to->piece->isWhite) 
         return false;
+    //Check that a piece is not moving to its current location
+    if (from == to) return false;
     
     //Calculate offsets
     int colOffset = abs(from->col - to->col); //abs is absolute value
@@ -84,6 +86,8 @@ bool moveRook(struct Space *from, struct Space *to, struct Space *board[][8]) {
     
     int i,start,end;
 
+    //2. Check that no pieces are on the path
+
     //if motion is vertical
     if ((from->col == to->col)) {
 
@@ -114,12 +118,31 @@ bool moveRook(struct Space *from, struct Space *to, struct Space *board[][8]) {
 bool moveKnight(struct Space *from, struct Space *to, struct Space *board[][8], int colOffset, int rowOffset) {
     //1. Movement is L shaped;
     return ((colOffset == 2 && rowOffset == 1) || (colOffset == 1 && rowOffset == 2));
+    //2. Knight can jump over other pieces so no need to check if there is a piecein path
+
 }
 
 bool moveBishop(struct Space *from, struct Space *to, struct Space *board[][8], int colOffset, int rowOffset) {
-    //1.Movement only vertical
+    //1.Movement can only be diagonal
+    if (colOffset != rowOffset) return false;
     
-    return (colOffset == rowOffset);
+    //2. Check there are not other pieces in path
+    struct Space *lowerSpace = (from->row < to->row) ? from: to;
+    int upperSpaceCol = (from->row > to->row) ? from->col: to->col;
+    struct Space *tmp;
+    int i;
+
+    for (i = 1; i < colOffset; i++) {
+        if (lowerSpace->col < upperSpaceCol) 
+            tmp = board[lowerSpace->row + i][lowerSpace->col + i];
+        else
+            tmp = board[lowerSpace->row + i][lowerSpace->col - i];
+        if (tmp->piece) return false;
+    }
+
+    return true;
+
+
 }
 
 bool moveQueen(struct Space *from, struct Space *to, struct Space *board[][8], int colOffset, int rowOffset) {
