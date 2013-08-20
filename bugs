@@ -1,0 +1,11 @@
+I just want to write down an anecdote that could be potentially useful later:
+
+I'm dealing with the following bug. The second time my Game loop( while true) goes
+around, I encounter a segmentation fault on my Move function. When I debug it
+I realize that a crazy address is being passed to the function as the FROM param.
+I thought this was a problem with the memory deallocation the Move function
+produces when a piece is captured, but the problem also occurs when no piece is
+captured, or even when no valid move is made. The problem was actually in how
+I read my input. The getchar() function the second time around, was reading
+garbage rather than my input, so the index put on the board array where crazy
+high and low (like 54 and -47) which pointed to a random null point in memory.

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #define MAX(X,Y) (((X) > (Y)) ? (X) : (Y))
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
@@ -14,7 +15,9 @@ bool moveQueen(struct Space *from, struct Space *to, struct Space *board[][8], i
 bool moveKing(struct Space *from, struct Space *to, struct Space *board[][8], int colOffset, int rowOffset);
        
 bool move(struct Space *from, struct Space *to, struct Space *board[][8]) {
+    printf("%p\n", from);
     if (from->piece == NULL) return false;
+
     //Check there is not a same colored piece on the spot
     if (to->piece != NULL && from->piece->isWhite == to->piece->isWhite) 
         return false;
@@ -59,23 +62,16 @@ bool move(struct Space *from, struct Space *to, struct Space *board[][8]) {
 
 bool movePawn(struct Space *from, struct Space *to, struct Space *board[][8], int colOffset, int rowOffset) {
     
-    //1. If the pawn is not moving in a straing line, make sure it will move 
+    //1. Make sure the pawn is moving one space
+    if (colOffset > 1 || rowOffset != 1)
+        return false;
+
+    //2. If the pawn is not moving in a straing line, make sure it will move 
     //one space diagonally and will caputer another opposite piece
-
-    if (from->col != to->col) {
-        if (((from->col + 1 != to->col) && (from->col - 1 != to->col)) ||
-            (from->row + 1 != to->row) || (to->piece == NULL)){
-                return false;
-            }
-    }
-    
-    //2. If it's moving straight, make sure it's just one space
-    else if (from->row + 1 !=  to->row) return false;
-    
-    //3. If it's moving one row straight, make sure the space it's not occupied
-    else if (to->piece) return false; 
-
-    // The move is legal
+     
+    if (colOffset == 1 && to->piece == NULL) 
+        return false;
+        
     return true;
     //WILL HANDLE PROMOTION AND INITIAL 2 SPACE OPEN LATER        
 }
