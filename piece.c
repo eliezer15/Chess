@@ -65,8 +65,12 @@ bool movePawn(struct Space *from, struct Space *to, struct Space *board[][8], in
     //1. Make sure the pawn is moving one space
     if (colOffset > 1 || rowOffset != 1)
         return false;
+    
+    //2. If pawn is moving on a straight line, no piece is in front of it.
+    if (colOffset == 0 && to->piece)
+        return false;
 
-    //2. If the pawn is not moving in a straing line, make sure it will move 
+    //3. If the pawn is not moving in a straing line, make sure it will move 
     //one space diagonally and will caputer another opposite piece
      
     if (colOffset == 1 && to->piece == NULL) 

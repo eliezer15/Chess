@@ -13,7 +13,7 @@
 
 void initializeBoard(struct Space* board[][8]);
 void initializePieces(struct Piece* piece[], int N, enum pieceType type, bool areWhite);
-bool parseCommand(char* command, int* fromRow, int* fromCol, int* toRow, int* toCol);
+bool parseCommand(char* from, char* to, int* fromRow, int* fromCol, int* toRow, int* toCol);
 
 int main() {
     
@@ -84,8 +84,8 @@ int main() {
     //bishops
     board[0][2]->piece = whiteBishops[0];
     board[0][5]->piece = whiteBishops[1];
-    board[7][2]->piece = blackRooks[0];
-    board[7][5]->piece = blackRooks[1];
+    board[7][2]->piece = blackBishops[0];
+    board[7][5]->piece = blackBishops[1];
 
     //queens
     board[0][4]->piece = whiteQueens[0];
@@ -97,15 +97,21 @@ int main() {
 
     //start game
     int *fromCol, *fromRow, *toCol, *toRow;
-    char *command;
+    //initialize pointers
+    fromCol = malloc(sizeof(int));
+    fromRow = malloc(sizeof(int));
+    toCol = malloc(sizeof(int));
+    toRow = malloc(sizeof(int));
+     
+    char *from = malloc(sizeof(from));
+    char *to = malloc(sizeof(to));
 
     while (true) {
         printBoard(board);    
        
-        scanf("%s", &command); 
-        printf("%s\n", command);
+        scanf("%s %s", from, to); 
 
-        if (parseCommand(command, fromRow, fromCol, toRow, toCol)) 
+        if (parseCommand(from, to, fromRow, fromCol, toRow, toCol)) 
             move(board[*fromRow][*fromCol], board[*toRow][*toCol], board);
         else 
             printf("Invalid command\n");
@@ -135,27 +141,25 @@ void initializePieces(struct Piece* piece[], int N, enum pieceType type, bool ar
     }
 }
 
-bool parseCommand(char command[], int* fromRow, int* fromCol, int* toRow, int* toCol) {
+bool parseCommand(char* from, char* to, int* fromRow, int* fromCol, int* toRow, int* toCol) {
     
-    //int i;
-    //for (i = 0; i < 6; i++)
-    //    printf("%c\n", command[i]);
+    int i;
+    for (i = 0; i < 2; i++)
+        printf("%c %c\n", from[i], to[i]);
 
-    if (command[0] >=  'a' &&  command[0] <= 'h')
+    if (from[0] < 'a' ||  from[0] > 'h')
         return false;
-    if (command[1] >= 49 && command[1] <= 56) //49 to 56 are the char representations of 1 through 8
+    if (from[1] < 49 || from[1] > 56) //49 to 56 are the char representations of 1 through 8
         return false;
-    if (command[2] != 32) //32 is Space
+    if (to[0] < 'a' || to[0] > 'h')
         return false;
-    if (command[3] >= 'a' && command[3] <= 'h')
-        return false;
-    if (command[4] >= 49 && command[4] <= 56)
+    if (to[1] < 49 || to[1] > 56)
         return false;
 
-    *fromCol = command[0] -'a';
-    *fromRow = command[1] -'1';
-    *toCol = command[3] - 'a';
-    *toRow = command[4] - '1';
+    *fromCol = from[0] -'a';
+    *fromRow = from[1] -'1';
+    *toCol = to[0] - 'a';
+    *toRow = to[1] - '1';
     return true;
 }
 
