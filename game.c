@@ -13,7 +13,7 @@
 
 void initializeBoard(struct Space* board[][8]);
 void initializePieces(struct Piece* piece[], int N, enum pieceType type, bool areWhite);
-bool parseCommand(char* from, char* to, int* fromRow, int* fromCol, int* toRow, int* toCol);
+bool parseCommand(char* fromValues, char* toValues, struct Space* board[][8], struct Space* from, struct Space* to);
 
 int main() {
     
@@ -96,26 +96,53 @@ int main() {
     board[7][4]->piece = blackKing[0];
 
     //start game
-    int *fromCol, *fromRow, *toCol, *toRow;
-    //initialize pointers
-    fromCol = malloc(sizeof(int));
-    fromRow = malloc(sizeof(int));
-    toCol = malloc(sizeof(int));
-    toRow = malloc(sizeof(int));
+    bool isWhiteTurn = true;
+    bool validMove = true; 
+    //initialize space pointers
+    struct Space *from = malloc(sizeof(struct Space));
+    struct Space *to = malloc(sizeof(struct Space));
      
-    char *from = malloc(sizeof(from));
-    char *to = malloc(sizeof(to));
-
+    char *fromValues = malloc(sizeof(fromValues));
+    char *toValues = malloc(sizeof(toValues));
+    
+    printBoard(board);    
+    //Game Loop
     while (true) {
-        printBoard(board);    
-       
-        scanf("%s %s", from, to); 
 
-        if (parseCommand(from, to, fromRow, fromCol, toRow, toCol)) 
-            move(board[*fromRow][*fromCol], board[*toRow][*toCol], board);
+        scanf("%s %s", fromValues, toValues); 
+        
+        if (parseCommand(fromValues, toValues, board, from, to)) { //if command is valid
+
+            if (from->piece == NULL) {
+                printf("No piece found in that space\n");
+                continue;
+            }
+  
+            if (from->piece->isWhite != isWhiteTurn) {
+                printf("You cannot move a piece of that color\n");
+                continue;
+            }
+           
+            if (to->piece != NULL && from->piece->isWhite == to->piece->isWhite) {
+                printf("Cannot move a piece to a space occupied by a piece of the same color\n");
+                continue;
+            }
+
+            if (from == to) {
+                printf("Cannot move a piece to the same space it occupies\n");
+                continue;
+            }
+            
+            if (!move(from, to, board, isWhiteTurn)){
+                printf("That move is not allowed\n");
+                continue;
+           }
+        }
         else 
             printf("Invalid command\n");
         
+        isWhiteTurn = !isWhiteTurn;
+        printBoard(board);
     }
 
     return 0;
@@ -141,25 +168,26 @@ void initializePieces(struct Piece* piece[], int N, enum pieceType type, bool ar
     }
 }
 
-bool parseCommand(char* from, char* to, int* fromRow, int* fromCol, int* toRow, int* toCol) {
+bool parseCommand(char* fromValues, char* toValues, struct Space* board[][8], struct Space* from, struct Space* to) {
     
-    int i;
-    for (i = 0; i < 2; i++)
-        printf("%c %c\n", from[i], to[i]);
-
-    if (from[0] < 'a' ||  from[0] > 'h')
+    int fromCol, fromRow, toCol, toRow;
+    if (fromValues[0] < 'a' ||  fromValues[0] > 'h')
         return false;
-    if (from[1] < 49 || from[1] > 56) //49 to 56 are the char representations of 1 through 8
+    if (fromValues[1] < 49 || fromValues[1] > 56) //49 to 56 are the char representations of 1 through 8
         return false;
-    if (to[0] < 'a' || to[0] > 'h')
+    if (toValues[0] < 'a' || toValues[0] > 'h')
         return false;
-    if (to[1] < 49 || to[1] > 56)
+    if (toValues[1] < 49 || toValues[1] > 56)
         return false;
 
-    *fromCol = from[0] -'a';
-    *fromRow = from[1] -'1';
-    *toCol = to[0] - 'a';
-    *toRow = to[1] - '1';
+    fromCol = fromValues[0] -'a';
+    fromRow = fromValues[1] -'1';
+    toCol = toValues[0] - 'a';
+    toRow = toValues[1] - '1';
+    
+    from = board[fromRow][fromCol];
+    to = board[toRow][toCol];
+
     return true;
 }
 

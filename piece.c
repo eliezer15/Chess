@@ -14,15 +14,7 @@ bool moveBishop(struct Space *from, struct Space *to, struct Space *board[][8], 
 bool moveQueen(struct Space *from, struct Space *to, struct Space *board[][8], int colOffset, int rowOffset);
 bool moveKing(struct Space *from, struct Space *to, struct Space *board[][8], int colOffset, int rowOffset);
        
-bool move(struct Space *from, struct Space *to, struct Space *board[][8]) {
-    printf("%p\n", from);
-    if (from->piece == NULL) return false;
-
-    //Check there is not a same colored piece on the spot
-    if (to->piece != NULL && from->piece->isWhite == to->piece->isWhite) 
-        return false;
-    //Check that a piece is not moving to its current location
-    if (from == to) return false;
+bool move(struct Space *from, struct Space *to, struct Space *board[][8], bool isWhiteTurn) {
     
     //Calculate offsets
     int colOffset = abs(from->col - to->col); //abs is absolute value
