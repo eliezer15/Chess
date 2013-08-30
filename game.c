@@ -13,7 +13,7 @@
 
 void initializeBoard(struct Space* board[][8]);
 void initializePieces(struct Piece* piece[], int N, enum pieceType type, bool areWhite);
-bool parseCommand(char* fromValues, char* toValues, struct Space* board[][8], struct Space* from, struct Space* to);
+bool parseCommand(char* fromValues, char* toValues, struct Space* board[][8], struct Space** from, struct Space** to);
 
 int main() {
     
@@ -99,9 +99,9 @@ int main() {
     bool isWhiteTurn = true;
     bool validMove = true; 
     //initialize space pointers
-    struct Space *from = malloc(sizeof(struct Space));
-    struct Space *to = malloc(sizeof(struct Space));
-     
+    struct Space *from;// = malloc(sizeof(struct Space));
+    struct Space *to;// = malloc(sizeof(struct Space));
+    
     char *fromValues = malloc(sizeof(fromValues));
     char *toValues = malloc(sizeof(toValues));
     
@@ -111,7 +111,7 @@ int main() {
 
         scanf("%s %s", fromValues, toValues); 
         
-        if (parseCommand(fromValues, toValues, board, from, to)) { //if command is valid
+        if (parseCommand(fromValues, toValues, board, &from, &to)) { //if command is valid
 
             if (from->piece == NULL) {
                 printf("No piece found in that space\n");
@@ -168,7 +168,7 @@ void initializePieces(struct Piece* piece[], int N, enum pieceType type, bool ar
     }
 }
 
-bool parseCommand(char* fromValues, char* toValues, struct Space* board[][8], struct Space* from, struct Space* to) {
+bool parseCommand(char* fromValues, char* toValues, struct Space* board[][8], struct Space** from, struct Space** to) {
     
     int fromCol, fromRow, toCol, toRow;
     if (fromValues[0] < 'a' ||  fromValues[0] > 'h')
@@ -185,8 +185,8 @@ bool parseCommand(char* fromValues, char* toValues, struct Space* board[][8], st
     toCol = toValues[0] - 'a';
     toRow = toValues[1] - '1';
     
-    from = board[fromRow][fromCol];
-    to = board[toRow][toCol];
+    *from = board[fromRow][fromCol]; 
+    *to = board[toRow][toCol];
 
     return true;
 }
