@@ -98,9 +98,11 @@ int main() {
     //start game
     bool isWhiteTurn = true;
     bool validMove = true; 
+    char *prompt = "White: ";
+
     //initialize space pointers
-    struct Space *from;// = malloc(sizeof(struct Space));
-    struct Space *to;// = malloc(sizeof(struct Space));
+    struct Space *from;
+    struct Space *to;
     
     char *fromValues = malloc(sizeof(fromValues));
     char *toValues = malloc(sizeof(toValues));
@@ -109,6 +111,7 @@ int main() {
     //Game Loop
     while (true) {
 
+        printf("%s", prompt);
         scanf("%s %s", fromValues, toValues); 
         
         if (parseCommand(fromValues, toValues, board, &from, &to)) { //if command is valid
@@ -137,11 +140,16 @@ int main() {
                 printf("That move is not allowed\n");
                 continue;
            }
+           
+           //No errors, so change turns
+           isWhiteTurn = !isWhiteTurn;
+           prompt = (isWhiteTurn) ? "White: ": "Black: ";
+           
         }
         else 
             printf("Invalid command\n");
         
-        isWhiteTurn = !isWhiteTurn;
+        
         printBoard(board);
     }
 
