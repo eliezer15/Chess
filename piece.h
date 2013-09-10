@@ -11,6 +11,7 @@ enum pieceType {pawn,rook,knight,bishop,queen,king};
 struct Piece {
     bool isWhite; 
     enum pieceType piece_type;
+    struct Space *space; //only needed for King
 };
 
 //This functions could probably be improved to have one

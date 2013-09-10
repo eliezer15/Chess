@@ -12,92 +12,72 @@
 */
 
 void initializeBoard(struct Space* board[][8]);
-void initializePieces(struct Piece* piece[], int N, enum pieceType type, bool areWhite);
+void initializePieces(struct Piece* pieces[],  bool areWhite);
 bool parseCommand(char* fromValues, char* toValues, struct Space* board[][8], struct Space** from, struct Space** to);
+bool isKingChecked(struct Space* board[][8], struct Space* kingPosition);
 
 int main() {
     
     struct Space* board[8][8];
     
-    struct Piece* whitePawns[8];
-    struct Piece* blackPawns[8];
+    /* 0-7: pawns
+     * 8-9: rooks
+     * 10-11: knights
+     * 12-13: bishops
+     * 14: queen
+     * 15: king
+    */
 
-    struct Piece* whiteRooks[10];
-    struct Piece* blackRooks[10];
-
-    struct Piece* whiteBishops[10];
-    struct Piece* blackBishops[10];
-    
-    struct Piece* whiteKnights[10];
-    struct Piece* blackKnights[10];
-    
-    struct Piece* whiteQueens[10];
-    struct Piece* blackQueens[10];
-    
-    //Kings are put in array to use 
-    //the initializePieces function
-    //and reduce code
-    struct Piece* whiteKing[1];
-    struct Piece* blackKing[1];
+    struct Piece* blackPieces[16];
+    struct Piece* whitePieces[16];
        
     int i,j;
     
     initializeBoard(board);
+    initializePieces(blackPieces, false);
+    initializePieces(whitePieces, true);
 
-    initializePieces(whitePawns, 8, pawn, true);
-    initializePieces(blackPawns, 8, pawn, false);
-
-    initializePieces(whiteRooks, 2, rook, true);
-    initializePieces(blackRooks, 2, rook, false);
-
-    initializePieces(whiteBishops, 2, bishop, true);
-    initializePieces(blackBishops, 2, bishop, false);
-
-    initializePieces(whiteKnights, 2, knight, true);
-    initializePieces(blackKnights, 2, knight, false);
-
-    initializePieces(whiteQueens, 1, queen, true);
-    initializePieces(blackQueens, 1, queen, false);
-
-    initializePieces(whiteKing, 1, king, true);
-    initializePieces(blackKing, 1, king, false);
-    
     //Place pieces on boards
     //pawns
     for (i = 0; i < 8; i++) {
-        board[1][i]->piece = whitePawns[i];
-        board[6][i]->piece = blackPawns[i];
+        board[1][i]->piece = whitePieces[i];
+        board[6][i]->piece = blackPieces[i];
     }
     
     //rooks
-    board[0][0]->piece = whiteRooks[0];
-    board[0][7]->piece = whiteRooks[1];
-    board[7][0]->piece = blackRooks[0];
-    board[7][7]->piece = blackRooks[1];
+    board[0][0]->piece = whitePieces[8];
+    board[0][7]->piece = whitePieces[9];
+    board[7][0]->piece = blackPieces[8];
+    board[7][7]->piece = blackPieces[9];
 
     //knights
-    board[0][1]->piece = whiteKnights[0];
-    board[0][6]->piece = whiteKnights[1];
-    board[7][1]->piece = blackKnights[0];
-    board[7][6]->piece = blackKnights[1];
+    board[0][1]->piece = whitePieces[10];
+    board[0][6]->piece = whitePieces[11];
+    board[7][1]->piece = blackPieces[10];
+    board[7][6]->piece = blackPieces[11];
 
     //bishops
-    board[0][2]->piece = whiteBishops[0];
-    board[0][5]->piece = whiteBishops[1];
-    board[7][2]->piece = blackBishops[0];
-    board[7][5]->piece = blackBishops[1];
+    board[0][2]->piece = whitePieces[12];
+    board[0][5]->piece = whitePieces[13];
+    board[7][2]->piece = blackPieces[12];
+    board[7][5]->piece = blackPieces[13];
 
     //queens
-    board[0][4]->piece = whiteQueens[0];
-    board[7][3]->piece = blackQueens[0];
+    board[0][4]->piece = whitePieces[14];
+    board[7][3]->piece = blackPieces[14];
 
-    //kings
-    board[0][3]->piece = whiteKing[0];
-    board[7][4]->piece = blackKing[0];
+    //kings. Note: only kings need to know their position
+    board[0][3]->piece = whitePieces[15];
+    whitePieces[15]->space = board[0][3];
+    board[7][4]->piece = blackPieces[15];
+    blackPieces[15]->space = board[7][4];
 
     //start game
     bool isWhiteTurn = true;
-    bool validMove = true; 
+    struct Piece *king;
+    king = whitePieces[15];
+    bool validMove = true;
+    bool checked = false;
     char *prompt = "White: ";
 
     //initialize space pointers
@@ -110,12 +90,22 @@ int main() {
     printBoard(board);    
     //Game Loop
     while (true) {
+        
+        if (isKingChecked(board, king->space)) {
+            printf("Checked!\n");
+            checked = true;
+        }
 
         printf("%s", prompt);
         scanf("%s %s", fromValues, toValues); 
         
         if (parseCommand(fromValues, toValues, board, &from, &to)) { //if command is valid
-
+            
+            if (checked && from->piece != king) {
+                printf("Your King is checked. You must move it\n");
+                continue;
+            }
+            
             if (from->piece == NULL) {
                 printf("No piece found in that space\n");
                 continue;
@@ -166,14 +156,22 @@ void initializeBoard(struct Space* board[][8]) {
         }
 }
 
-void initializePieces(struct Piece* piece[], int N, enum pieceType type, bool areWhite) {
+void initializePieces(struct Piece* pieces[], bool areWhite) {
     
     int i;
-    for (i = 0; i < N; i++) {
-        piece[i] = malloc(sizeof(struct Piece));
-        piece[i]->piece_type = type;
-        piece[i]->isWhite = areWhite;
+    for (i = 0; i < 16; i++) {
+        pieces[i] = malloc(sizeof(struct Piece));
+        pieces[i]->isWhite = areWhite;
     }
+    //All pieces are pawns by default (thank God)
+    pieces[8]->piece_type = rook;
+    pieces[9]->piece_type = rook;
+    pieces[10]->piece_type = knight;
+    pieces[11]->piece_type = knight;
+    pieces[12]->piece_type = bishop;
+    pieces[13]->piece_type = bishop;
+    pieces[14]->piece_type = queen;
+    pieces[15]->piece_type = king;
 }
 
 bool parseCommand(char* fromValues, char* toValues, struct Space* board[][8], struct Space** from, struct Space** to) {
@@ -197,5 +195,21 @@ bool parseCommand(char* fromValues, char* toValues, struct Space* board[][8], st
     *to = board[toRow][toCol];
 
     return true;
+}
+
+bool isKingChecked(struct Space* board[][8], struct Space* kingPosition) {
+
+    //Go over all pieces and see if any of them can legally move to where the King is, thus putting it on check
+    int i,j;
+    for(i = 0; i < 8; i++) {
+        for(j = 0; j < 8; j++) {
+            if (board[i][j]->piece) {
+                if (move(board[i][j], kingPosition, board, board[i][j]->piece->isWhite))
+                    return true;
+            }
+        }
+    }
+
+    return false;
 }
 

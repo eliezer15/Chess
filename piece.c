@@ -54,10 +54,24 @@ bool move(struct Space *from, struct Space *to, struct Space *board[][8], bool i
 
 bool movePawn(struct Space *from, struct Space *to, struct Space *board[][8], int colOffset, int rowOffset) {
     
-    //1. Make sure the pawn is moving one space
-    if (colOffset > 1 || rowOffset != 1)
-        return false;
-    
+    //1. Make sure the pawn is moving one space. If not, make sure its moving 2 spaces and it is on the starting position.
+    if (colOffset > 1 || rowOffset != 1) {
+        if (rowOffset == 2 && colOffset == 0) {
+            if (from->piece->isWhite) {
+                if (from->row != 1)
+                    return false;
+            }
+           
+            else {//piece is black
+                if (from->row != 6)
+                    return false;
+            }
+        }
+
+        else        
+            return false;
+    }
+
     //2. If pawn is moving on a straight line, no piece is in front of it.
     if (colOffset == 0 && to->piece)
         return false;
@@ -67,9 +81,8 @@ bool movePawn(struct Space *from, struct Space *to, struct Space *board[][8], in
      
     if (colOffset == 1 && to->piece == NULL) 
         return false;
-        
+    
     return true;
-    //WILL HANDLE PROMOTION AND INITIAL 2 SPACE OPEN LATER        
 }
 
 bool moveRook(struct Space *from, struct Space *to, struct Space *board[][8]) {
